@@ -123,6 +123,26 @@ class MoneyTransferTest {
     }
 
     @Test
+    void shouldTransferMoneyOn1CardWith2Card1KopecksV2() {
+        open("http://localhost:9999");
+        var loginPage = new LoginPageV2();
+//    var loginPage = open("http://localhost:9999", LoginPageV2.class);
+        var authInfo = DataHelper.getAuthInfo();
+        var verificationPage = loginPage.validLogin(authInfo);
+        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        var dashboardPage = verificationPage.validVerify(verificationCode);
+        var currentBalance2Card = DashboardPage.getCardBalance(DashboardPage.getId2());
+        var currentBalance1Card = DashboardPage.getCardBalance(DashboardPage.getId1());
+        var sumTranslation = "0,01"; //1 копейку переводим
+        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DashboardPage.getId1()); //выбираем пополнение 1 карты
+        var transfer = choosingACard.transfer(sumTranslation, 1); //пополнение со 2 карты
+        int balanceAfterTransfer2Card = currentBalance2Card; //так как целая сумма на счету, то 20 копеек в расчет не берем, баланс неизменный
+        int balanceAfterTransfer1Card = currentBalance1Card;
+        transfer.chekingBalance(DashboardPage.getId2(), balanceAfterTransfer2Card);
+        transfer.chekingBalance(DashboardPage.getId1(), balanceAfterTransfer1Card);
+    }
+
+    @Test
     void shouldTransferMoneyOnCard2WihtCard1TranslationOverLimitV3() {
         var loginPage = open("http://localhost:9999", LoginPageV3.class);
         var authInfo = DataHelper.getAuthInfo();

@@ -26,6 +26,10 @@ public class DashboardPage {
 
 
     public DashboardPage() {
+        heading.shouldBe(visible);  //проверка видимости или в конструкторе или в методе ниже
+    }
+
+    public void verifyIsDashboardPage(){
         heading.shouldBe(visible);
     }
 
@@ -55,7 +59,7 @@ public class DashboardPage {
     }
 
 //    выбираем карту, которую будем пополнять и переходим на страницу пополнения
-    public static DashboardPage choosingACardToTopUpYourBalance(String id) {
+    public DashboardPage choosingACardToTopUpYourBalance(String id) {
         $("[data-test-id='" + id + "'] [data-test-id='action-deposit']").click();
         return new DashboardPage();
     }
@@ -77,7 +81,7 @@ public class DashboardPage {
     }
 
 //    проверяем баланс
-    public static void chekingBalance(String id, int balance) {
+    public void chekingBalance(String id, int balance) {
         Assertions.assertEquals(getCardBalance(id),balance);
     }
 }
