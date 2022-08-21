@@ -11,7 +11,6 @@ public class VerificationPage {
     private SelenideElement codeField = $("[data-test-id=code] input");
     private SelenideElement verifyButton = $("[data-test-id=action-verify]");
 
-    private SelenideElement errorPopup = $(".notification__content");
 
     public VerificationPage() {
         codeField.shouldBe(visible);
@@ -23,7 +22,4 @@ public class VerificationPage {
         return new DashboardPage();
     }
 
-    public void verifyCodeIsInvalid() {
-        errorPopup.shouldHave(text("Неверно указан код! Попробуйте ещё раз."));
-    }
 }
