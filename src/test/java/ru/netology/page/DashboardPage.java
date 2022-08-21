@@ -29,10 +29,6 @@ public class DashboardPage {
         heading.shouldBe(visible);  //проверка видимости или в конструкторе или в методе ниже
     }
 
-    public void verifyIsDashboardPage(){
-        heading.shouldBe(visible);
-    }
-
     public static int getCardBalance(String id) {
         val text = cards.find(attribute("data-test-id", id)).text();
         return extractBalance(text);
