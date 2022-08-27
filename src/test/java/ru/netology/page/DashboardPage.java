@@ -21,8 +21,6 @@ public class DashboardPage {
     private static ElementsCollection cards = $$(".list__item div");
     private static final String balanceStart = "баланс: ";
     private static final String balanceFinish = " р.";
-    private static ElementsCollection ids = $$("li div");
-
 
 
     public DashboardPage() {
@@ -44,40 +42,12 @@ public class DashboardPage {
         return Integer.parseInt(value);
     }
 
-    public static String getId1() {
-        String id1 = ids.first().getAttribute("data-test-id");
-        return id1;
-    }
-
-    public static String getId2() {
-        String id2 = ids.last().getAttribute("data-test-id");
-        return id2;
-    }
-
 //    выбираем карту, которую будем пополнять и переходим на страницу пополнения
-    public DashboardPage choosingACardToTopUpYourBalance(String id) {
+    public TransferPage choosingACardToTopUpYourBalance(String id) {
         $("[data-test-id='" + id + "'] [data-test-id='action-deposit']").click();
-        return new DashboardPage();
+        return new TransferPage();
     }
 
-//   для факер берем лимит баланса той карты, с которой переводим
-    public static String getAmount(String id){
-        Faker faker = new Faker();
-        int amount = faker.number().numberBetween(0, getCardBalance(id));
-        String result = valueOf(amount);
-        return result;
-    }
 
-//  пополняем баланс. индекс 0-номер первой карты, 1-номер второй карты
-    public DashboardPage transfer(String amount, int index) {
-        $("[data-test-id='amount'] input").setValue(amount);
-        $("[data-test-id='from'] input").setValue(DataHelper.getNumberCard(index));
-        $("[data-test-id='action-transfer']").click();
-        return new DashboardPage();
-    }
 
-//    проверяем баланс
-    public void chekingBalance(String id, int balance) {
-        Assertions.assertEquals(getCardBalance(id),balance);
-    }
 }

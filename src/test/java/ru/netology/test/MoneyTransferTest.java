@@ -1,13 +1,17 @@
 package ru.netology.test;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
+
+import static com.codeborne.selenide.Selenide.$;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.netology.data.DataHelper;
 import ru.netology.page.DashboardPage;
 import ru.netology.page.LoginPageV1;
-import ru.netology.page.LoginPageV2;
-import ru.netology.page.LoginPageV3;
+import ru.netology.page.TransferPage;
+
 
 import static com.codeborne.selenide.Selenide.open;
 import static java.lang.String.valueOf;
@@ -15,143 +19,163 @@ import static java.lang.String.valueOf;
 class MoneyTransferTest {
 
     @Test
-    void shouldTransferMoneyOnCard1WithCard2V1() {
-
+    void shouldTransferMoneyOnCard1WithCard2() {
         open("http://localhost:9999");
         var loginPage = new LoginPageV1();
-//    var loginPage = open("http://localhost:9999", LoginPageV1.class);
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var currentBalance2Card = DashboardPage.getCardBalance(DashboardPage.getId2());
-        var currentBalance1Card = DashboardPage.getCardBalance(DashboardPage.getId1());
-        var sumTranslation = DashboardPage.getAmount(DashboardPage.getId2()); //лимит баланса от 2 карты
-        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DashboardPage.getId1()); //выбираем пополнение 1 карты
-        var transfer = choosingACard.transfer(sumTranslation, 1); //пополнение со второй карты
+        var currentBalance2Card = DashboardPage.getCardBalance(DataHelper.getCard(1).getId());//баланс 2 карты
+        var currentBalance1Card = DashboardPage.getCardBalance(DataHelper.getCard(0).getId());//баланс 1 карты
+        var sumTranslation = DataHelper.getAmount(DataHelper.getCard(1).getId()); // вычисляем лимит баланса от 2 карты на старнице dashboard, чтобы использовать на странице transfer
+        var cardNumber = DataHelper.getCard(1).getNumber(); //пополнение со 2 карты, номер определяем на старнице dashboard, чтобы передать его на странице transfer
+        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DataHelper.getCard(0).getId()); //выбираем пополнение 1 карты
+        choosingACard.transfer(sumTranslation, cardNumber);
         int balanceAfterTransfer2Card = currentBalance2Card - Integer.parseInt(sumTranslation);
         int balanceAfterTransfer1Card = currentBalance1Card + Integer.parseInt(sumTranslation);
-        transfer.chekingBalance(DashboardPage.getId2(), balanceAfterTransfer2Card);
-        transfer.chekingBalance(DashboardPage.getId1(), balanceAfterTransfer1Card);
+        assertEquals(balanceAfterTransfer2Card, DashboardPage.getCardBalance(DataHelper.getCard(1).getId()));
+        assertEquals(balanceAfterTransfer1Card, DashboardPage.getCardBalance(DataHelper.getCard(0).getId()));
     }
 
 
 
     @Test
-    void shouldTransferMoneyOnCard2WithCard1V2() {
+    void shouldTransferMoneyOnCard2WithCard1() {
         open("http://localhost:9999");
-        var loginPage = new LoginPageV2();
-//    var loginPage = open("http://localhost:9999", LoginPageV2.class);
+        var loginPage = new LoginPageV1();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var currentBalance2Card = DashboardPage.getCardBalance(DashboardPage.getId2());
-        var currentBalance1Card = DashboardPage.getCardBalance(DashboardPage.getId1());
-        var sumTranslation = DashboardPage.getAmount(DashboardPage.getId1()); //лимит баланса от 1 карты
-        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DashboardPage.getId2()); //выбираем пополнение 2 карты
-        var transfer = choosingACard.transfer(sumTranslation, 0); //пополнение с 1 карты
+        var dashboardPage = verificationPage.validVerify(verificationCode);
+        var currentBalance2Card = DashboardPage.getCardBalance(DataHelper.getCard(1).getId());//баланс 2 карты
+        var currentBalance1Card = DashboardPage.getCardBalance(DataHelper.getCard(0).getId());//баланс 1 карты
+        var sumTranslation = DataHelper.getAmount(DataHelper.getCard(0).getId()); //вычисляем лимит баланса от 1 карты на старнице dashboard, чтобы использовать на странице transfer
+        var cardNumber = DataHelper.getCard(0).getNumber(); //пополнение с 1 карты, номер определяем на старнице dashboard, чтобы передать его на странице transfer
+        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DataHelper.getCard(1).getId()); //выбираем пополнение 2 карты
+        choosingACard.transfer(sumTranslation, cardNumber);
         int balanceAfterTransfer2Card = currentBalance2Card + Integer.parseInt(sumTranslation);
         int balanceAfterTransfer1Card = currentBalance1Card - Integer.parseInt(sumTranslation);
-        transfer.chekingBalance(DashboardPage.getId2(), balanceAfterTransfer2Card);
-        transfer.chekingBalance(DashboardPage.getId1(), balanceAfterTransfer1Card);
+        assertEquals(balanceAfterTransfer2Card, DashboardPage.getCardBalance(DataHelper.getCard(1).getId()));
+        assertEquals(balanceAfterTransfer1Card, DashboardPage.getCardBalance(DataHelper.getCard(0).getId()));
     }
 
     @Test
-    void shouldTransferMoneyOnCard2WithCard2V2() {
+    void shouldTransferMoneyOnCard2WithCard2() {
         open("http://localhost:9999");
-        var loginPage = new LoginPageV2();
-//    var loginPage = open("http://localhost:9999", LoginPageV2.class);
+        var loginPage = new LoginPageV1();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var currentBalance2Card = DashboardPage.getCardBalance(DashboardPage.getId2());
-        var currentBalance1Card = DashboardPage.getCardBalance(DashboardPage.getId1());
-        var sumTranslation = DashboardPage.getAmount(DashboardPage.getId2()); //лимит баланса от 2 карты
-        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DashboardPage.getId2()); //выбираем пополнение 2 карты
-        var transfer = choosingACard.transfer(sumTranslation, 1); //пополнение со 2 карты
+        var currentBalance2Card = DashboardPage.getCardBalance(DataHelper.getCard(1).getId());//баланс 2 карты
+        var currentBalance1Card = DashboardPage.getCardBalance(DataHelper.getCard(0).getId());//баланс 1 карты
+        var sumTranslation = DataHelper.getAmount(DataHelper.getCard(1).getId()); //вычисляем лимит баланса от 2 карты на старнице dashboard, чтобы использовать на странице transfer
+        var cardNumber = DataHelper.getCard(1).getNumber(); //пополнение со 2 карты, номер определяем на старнице dashboard, чтобы передать его на странице transfer
+        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DataHelper.getCard(1).getId()); //выбираем пополнение 2 карты
+        choosingACard.transfer(sumTranslation, cardNumber);
         int balanceAfterTransfer2Card = currentBalance2Card;
         int balanceAfterTransfer1Card = currentBalance1Card;
-        transfer.chekingBalance(DashboardPage.getId2(), balanceAfterTransfer2Card);
-        transfer.chekingBalance(DashboardPage.getId1(), balanceAfterTransfer1Card);
+        assertEquals(balanceAfterTransfer2Card, DashboardPage.getCardBalance(DataHelper.getCard(1).getId()));
+        assertEquals(balanceAfterTransfer1Card, DashboardPage.getCardBalance(DataHelper.getCard(0).getId()));
     }
 
     @Test
-    void shouldTransferMoneyOnCard1WithCard1V2() {
+    void shouldTransferMoneyOnCard1WithCard1() {
         open("http://localhost:9999");
-        var loginPage = new LoginPageV2();
-//    var loginPage = open("http://localhost:9999", LoginPageV2.class);
+        var loginPage = new LoginPageV1();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var currentBalance2Card = DashboardPage.getCardBalance(DashboardPage.getId2());
-        var currentBalance1Card = DashboardPage.getCardBalance(DashboardPage.getId1());
-        var sumTranslation = DashboardPage.getAmount(DashboardPage.getId1()); //лимит баланса от 1 карты
-        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DashboardPage.getId1()); //выбираем пополнение 1 карты
-        var transfer = choosingACard.transfer(sumTranslation, 0); //пополнение с 1 карты
+        var currentBalance2Card = DashboardPage.getCardBalance(DataHelper.getCard(1).getId());//баланс 2 карты
+        var currentBalance1Card = DashboardPage.getCardBalance(DataHelper.getCard(0).getId());//баланс 1 карты
+        var sumTranslation = DataHelper.getAmount(DataHelper.getCard(0).getId()); //вычисляем лимит баланса от 1 карты на старнице dashboard, чтобы использовать на странице transfer
+        var cardNumber = DataHelper.getCard(0).getNumber(); //пополнение с 1 карты, номер определяем на старнице dashboard, чтобы передать его на странице transfer
+        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DataHelper.getCard(0).getId()); //выбираем пополнение 1 карты
+        choosingACard.transfer(sumTranslation, cardNumber);
         int balanceAfterTransfer2Card = currentBalance2Card;
         int balanceAfterTransfer1Card = currentBalance1Card;
-        transfer.chekingBalance(DashboardPage.getId2(), balanceAfterTransfer2Card);
-        transfer.chekingBalance(DashboardPage.getId1(), balanceAfterTransfer1Card);
+        assertEquals(balanceAfterTransfer2Card, DashboardPage.getCardBalance(DataHelper.getCard(1).getId()));
+        assertEquals(balanceAfterTransfer1Card, DashboardPage.getCardBalance(DataHelper.getCard(0).getId()));
+
     }
 
     @Test
-    void shouldTransferMoneyOnCard1WithCard2NegativeTranslationV2() {
+    void shouldTransferMoneyOnCard1WithCard2NegativeTranslation() {
         open("http://localhost:9999");
-        var loginPage = new LoginPageV2();
-//    var loginPage = open("http://localhost:9999", LoginPageV2.class);
+        var loginPage = new LoginPageV1();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var currentBalance2Card = DashboardPage.getCardBalance(DashboardPage.getId2());
-        var currentBalance1Card = DashboardPage.getCardBalance(DashboardPage.getId1());
-        var sumTranslation = "-" + DashboardPage.getAmount(DashboardPage.getId2()); //лимит баланса от 2 карты. сумма отрицательная
-        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DashboardPage.getId1()); //выбираем пополнение 1 карты
-        var transfer = choosingACard.transfer(sumTranslation, 1); //пополнение со 2 карты
+        var currentBalance2Card = DashboardPage.getCardBalance(DataHelper.getCard(1).getId());//баланс 2 карты
+        var currentBalance1Card = DashboardPage.getCardBalance(DataHelper.getCard(0).getId());//баланс 1 карты
+        var sumTranslation = "-" + DataHelper.getAmount(DataHelper.getCard(1).getId()); //вычисляем лимит баланса от 2 карты на старнице dashboard, чтобы использовать на странице transfer. сумма отрицательная
+        var cardNumber = DataHelper.getCard(1).getNumber(); //пополнение со 2 карты, номер определяем на старнице dashboard, чтобы передать его на странице transfer
+        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DataHelper.getCard(0).getId()); //выбираем пополнение 1 карты
+        choosingACard.transfer(sumTranslation, cardNumber);
         int balanceAfterTransfer2Card = currentBalance2Card - Integer.parseInt(sumTranslation.substring(1));
         int balanceAfterTransfer1Card = currentBalance1Card + Integer.parseInt(sumTranslation.substring(1));
-        transfer.chekingBalance(DashboardPage.getId2(), balanceAfterTransfer2Card);
-        transfer.chekingBalance(DashboardPage.getId1(), balanceAfterTransfer1Card);
+        assertEquals(balanceAfterTransfer2Card, DashboardPage.getCardBalance(DataHelper.getCard(1).getId()));
+        assertEquals(balanceAfterTransfer1Card, DashboardPage.getCardBalance(DataHelper.getCard(0).getId()));
     }
 
     @Test
-    void shouldTransferMoneyOn1CardWith2Card1KopecksV2() {
+    void shouldTransferMoneyOn1CardWith2Card1Kopecks() {
         open("http://localhost:9999");
-        var loginPage = new LoginPageV2();
-//    var loginPage = open("http://localhost:9999", LoginPageV2.class);
+        var loginPage = new LoginPageV1();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var currentBalance2Card = DashboardPage.getCardBalance(DashboardPage.getId2());
-        var currentBalance1Card = DashboardPage.getCardBalance(DashboardPage.getId1());
-        var sumTranslation = "0,01"; //1 копейку переводим
-        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DashboardPage.getId1()); //выбираем пополнение 1 карты
-        var transfer = choosingACard.transfer(sumTranslation, 1); //пополнение со 2 карты
-        int balanceAfterTransfer2Card = currentBalance2Card; //так как целая сумма на счету, то 20 копеек в расчет не берем, баланс неизменный
-        int balanceAfterTransfer1Card = currentBalance1Card;
-        transfer.chekingBalance(DashboardPage.getId2(), balanceAfterTransfer2Card);
-        transfer.chekingBalance(DashboardPage.getId1(), balanceAfterTransfer1Card);
+        double currentBalance2Card = DashboardPage.getCardBalance(DataHelper.getCard(1).getId());//баланс 2 карты
+        double currentBalance1Card = DashboardPage.getCardBalance(DataHelper.getCard(0).getId());//баланс 1 карты
+        var cardNumber = DataHelper.getCard(1).getNumber(); //пополнение со 2 карты, номер определяем на старнице dashboard, чтобы передать его на странице transfer
+        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DataHelper.getCard(0).getId()); //выбираем пополнение 1 карты
+        choosingACard.transfer("0,01", cardNumber); // 1 копейку переводим
+        double balanceAfterTransfer2Card = currentBalance2Card - 0.01;
+        double balanceAfterTransfer1Card = currentBalance1Card + 0.01; //сумма меняется на 1 копейку
+        assertEquals(balanceAfterTransfer2Card, DashboardPage.getCardBalance(DataHelper.getCard(1).getId()));
+        assertEquals(balanceAfterTransfer1Card, DashboardPage.getCardBalance(DataHelper.getCard(0).getId()));
     }
 
     @Test
-    void shouldTransferMoneyOnCard2WihtCard1TranslationOverLimitV3() {
-        var loginPage = open("http://localhost:9999", LoginPageV3.class);
+    void shouldTransferMoneyOnCard2WihtCard1TranslationOverLimit() {
+        open("http://localhost:9999");
+        var loginPage = new LoginPageV1();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var currentBalance2Card = DashboardPage.getCardBalance(DashboardPage.getId2());
-        var currentBalance1Card = DashboardPage.getCardBalance(DashboardPage.getId1());
-        var sumTranslation = DashboardPage.getAmount(DashboardPage.getId1()) + "00"; //лимит баланса от 1 карты. сумма больше лимита
-        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DashboardPage.getId2()); //выбираем пополнение 2 карты
-        var transfer = choosingACard.transfer(sumTranslation, 0); //пополнение с 1 карты
-        int balanceAfterTransfer2Card = currentBalance2Card + Integer.parseInt(sumTranslation.substring(0,(sumTranslation.length()-2)));
-        int balanceAfterTransfer1Card = currentBalance1Card - Integer.parseInt(sumTranslation.substring(0,(sumTranslation.length()-2)));
-        transfer.chekingBalance(DashboardPage.getId2(), balanceAfterTransfer2Card);
-        transfer.chekingBalance(DashboardPage.getId1(), balanceAfterTransfer1Card);
+//        var currentBalance2Card = DashboardPage.getCardBalance(DataHelper.getCard(1).getId());//баланс 2 карты
+//        var currentBalance1Card = DashboardPage.getCardBalance(DataHelper.getCard(0).getId());//баланс 1 карты
+        var cardNumber = DataHelper.getCard(0).getNumber(); //пополнение с 1 карты, номер определяем на старнице dashboard, чтобы передать его на странице transfer
+        var sumTranslation = DataHelper.getAmount(DataHelper.getCard(0).getId()) + "00"; //лимит баланса от 1 карты. сумма в 100 раз больше лимита
+        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DataHelper.getCard(1).getId()); //выбираем пополнение 2 карты
+        choosingACard.transfer(sumTranslation, cardNumber);
+        $("[data-test-id='error-notification]").shouldBe(Condition.visible);
+
+    }
+
+    @Test
+    void shouldTransferMoneyOnCard2WihtCard1OfEntireAmount() {
+        Configuration.timeout = 10000;
+        open("http://localhost:9999");
+        var loginPage = new LoginPageV1();
+        var authInfo = DataHelper.getAuthInfo();
+        var verificationPage = loginPage.validLogin(authInfo);
+        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        var dashboardPage = verificationPage.validVerify(verificationCode);
+        var currentBalance2Card = DashboardPage.getCardBalance(DataHelper.getCard(1).getId());//баланс 2 карты
+        var currentBalance1Card = DashboardPage.getCardBalance(DataHelper.getCard(0).getId());//баланс 1 карты
+        var cardNumber = DataHelper.getCard(0).getNumber(); //пополнение с 1 карты, номер определяем на старнице dashboard, чтобы передать его на странице transfer
+        var choosingACard = dashboardPage.choosingACardToTopUpYourBalance(DataHelper.getCard(1).getId()); //выбираем пополнение 2 карты
+        var transfer = choosingACard.transfer(Integer.toString(currentBalance1Card), cardNumber); // сумма намного больше лимита
+        int balanceAfterTransfer2Card = currentBalance2Card + currentBalance1Card;
+        int balanceAfterTransfer1Card = currentBalance1Card - currentBalance1Card;
+        assertEquals(balanceAfterTransfer2Card, DashboardPage.getCardBalance(DataHelper.getCard(1).getId()));
+        assertEquals(balanceAfterTransfer1Card, DashboardPage.getCardBalance(DataHelper.getCard(0).getId()));
+
     }
 }
