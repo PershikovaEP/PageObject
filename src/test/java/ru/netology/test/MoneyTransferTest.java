@@ -160,7 +160,6 @@ class MoneyTransferTest {
 
     @Test
     void shouldTransferMoneyOnCard2WihtCard1OfEntireAmount() {
-        Configuration.timeout = 10000;
         open("http://localhost:9999");
         var loginPage = new LoginPageV1();
         var authInfo = DataHelper.getAuthInfo();
