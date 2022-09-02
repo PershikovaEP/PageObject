@@ -44,16 +44,16 @@ public class DataHelper {
    }
 
    public static Card getCard(int numberCard) {  //0 - 1 карта, 1 - 2 карта
-        Card card1 = new Card("5559000000000001", $x("//div[contains(text(), '0001')]").getAttribute("data-test-id"));
-        Card card2 = new Card("5559000000000002", $x("//div[contains(text(), '0002')]").getAttribute("data-test-id"));
+        Card card1 = new Card("5559000000000001", "92df3f1c-a033-48e6-8390-206f6b1f56c0");
+        Card card2 = new Card("5559000000000002", "0f3f5c2a-249e-4c3d-8287-09f7a039391d");
         Card[] cards = {card1, card2};
         return cards[numberCard];
    }
 
     //   для факер берем лимит баланса той карты, с которой переводим
-    public static String getAmount(String id){
+    public static String getAmount(int currentBalance){
         Faker faker = new Faker();
-        int amount = faker.number().numberBetween(0, DashboardPage.getCardBalance(id));
+        int amount = faker.number().numberBetween(0, currentBalance);
         String result = valueOf(amount);
         return result;
     }

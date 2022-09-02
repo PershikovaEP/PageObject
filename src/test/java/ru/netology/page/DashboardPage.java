@@ -27,12 +27,12 @@ public class DashboardPage {
         heading.shouldBe(visible);  //проверка видимости или в конструкторе или в методе ниже
     }
 
-    public static int getCardBalance(String id) {
+    public int getCardBalance(String id) {
         val text = cards.find(attribute("data-test-id", id)).text();
         return extractBalance(text);
     }
 
-    private static int extractBalance(String text) {
+    private int extractBalance(String text) {
 //        val start = text.indexOf(balanceStart);
 //        val finish = text.indexOf(balanceFinish);
 //        val value = text.substring(start + balanceStart.length(), finish);
@@ -46,6 +46,10 @@ public class DashboardPage {
     public TransferPage choosingACardToTopUpYourBalance(String id) {
         $("[data-test-id='" + id + "'] [data-test-id='action-deposit']").click();
         return new TransferPage();
+    }
+
+    public void popUpError() {
+        $("[data-test-id='error-notification]").shouldBe(Condition.visible);
     }
 
 

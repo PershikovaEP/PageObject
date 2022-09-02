@@ -1,5 +1,6 @@
 package ru.netology.page;
 
+import com.codeborne.selenide.Condition;
 import ru.netology.data.DataHelper;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -13,4 +14,5 @@ public class TransferPage {
         $("[data-test-id='action-transfer']").click();
         return new DashboardPage();
     }
+
 }
